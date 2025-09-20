@@ -13,7 +13,7 @@ export default function SignInForm() {
   const login = async () => {
     await authClient.signIn.social(
       {
-        provider: "github",
+        provider: "yuki2th",
       },
       {
         onSuccess: () => {
