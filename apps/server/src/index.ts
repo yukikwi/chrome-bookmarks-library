@@ -11,6 +11,7 @@ import { db } from "./db";
 import { book } from "./db/schema";
 import type { Bookmark } from "./types/bookmark";
 import { getAllBookmarks } from "./lib/bookmark";
+import { authApp } from "./apps/auth";
 
 const app = new Elysia()
 	.use(
@@ -21,13 +22,7 @@ const app = new Elysia()
 			credentials: true,
 		}),
 	)
-	.all("/api/auth/*", async (context) => {
-		const { request } = context;
-		if (["POST", "GET"].includes(request.method)) {
-			return auth.handler(request);
-		}
-		return context.set.status = 405;
-	})
+	.use(authApp)
 	.all("/trpc/*", async (context) => {
 		const res = await fetchRequestHandler({
 			endpoint: "/trpc",
@@ -66,7 +61,8 @@ const app = new Elysia()
 		body: z.object({
 			domains: z.string(),
 			file: z.instanceof(File)
-		})
+		}),
+		auth: true
 	})
 	.get("/", () => "OK")
 	.listen(3000, () => {

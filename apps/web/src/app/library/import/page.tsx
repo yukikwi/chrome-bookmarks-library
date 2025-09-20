@@ -16,6 +16,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { useEffect } from "react"
+import { authClient } from "@/lib/auth-client"
 
 // Define form schema
 const formSchema = z.object({
@@ -46,6 +48,13 @@ export default function ImportBookmarksPage() {
     },
   })
 
+  const { data: session, isPending } = authClient.useSession();
+  useEffect(() => {
+    if (!session && !isPending) {
+      router.push("/login");
+    }
+  }, [session, isPending, router]);
+
   // Handle form submission
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -63,6 +72,7 @@ export default function ImportBookmarksPage() {
       // Here you would typically send the file to your API
       const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/import-bookmarks`, {
         method: 'POST',
+        credentials: "include",
         body: formData,
       });
       const data = await response.json();

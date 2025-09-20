@@ -1,5 +1,5 @@
 "use client";
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import { BadgeCheckIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
@@ -30,7 +30,6 @@ function library() {
   );
   const randomBookMutation = useMutation(trpc.getRandomBook.mutationOptions());
 
-  const { data: session, isPending } = authClient.useSession();
   const displayBooks = useMemo(() => {
     return (books?.pages ?? [])?.flatMap((page) => {
       return (page.items ?? [])?.map((book) => {
@@ -42,6 +41,7 @@ function library() {
     });
   }, [books]);
 
+  const { data: session, isPending } = authClient.useSession();
   useEffect(() => {
     if (!session && !isPending) {
       router.push("/login");
