@@ -11,8 +11,15 @@ export const auth = betterAuth({
 	}),
 	trustedOrigins: [process.env.CORS_ORIGIN || ""],
 	emailAndPassword: {
-		enabled: true,
+		enabled: false,
 	},
+	socialProviders: {
+        github: { 
+            clientId: process.env.GITHUB_CLIENT_ID as string, 
+            clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+			redirectURI: process.env.BACKEND_URL + "/api/auth/callback/github",
+        }, 
+    },
 	advanced: {
 		defaultCookieAttributes: {
 			sameSite: "none",
