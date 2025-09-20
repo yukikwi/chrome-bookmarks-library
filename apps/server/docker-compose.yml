@@ -2,7 +2,7 @@ name: my-better-t-app
 
 services:
   postgres:
-    image: postgres
+    image: postgres:17
     container_name: my-better-t-app-postgres
     environment:
       POSTGRES_DB: my-better-t-app

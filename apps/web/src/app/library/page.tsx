@@ -1,61 +1,120 @@
 "use client";
-import { authClient } from "@/lib/auth-client";
-import { useQuery } from "@tanstack/react-query";
-import { trpc } from "@/utils/trpc";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import { BadgeCheckIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import {
-	Card,
-	CardAction,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
-import { Book } from "@/lib/types/library";
+import { useEffect, useMemo } from "react";
+import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-type Props = {};
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { authClient } from "@/lib/auth-client";
+import { trpc } from "@/utils/trpc";
 
-function library({}: Props) {
-	const router = useRouter();
-	const [books, setBooks] = useState<Book[]>([
-		{
-			url: "http://hentaithai.com/forum/index.php?topic=13832.0",
-			name: "ฟื้นฟูความจำ - [Karasu] Wild Therapy",
-		},
-	]);
-	const { data: session, isPending } = authClient.useSession();
+function library() {
+  const router = useRouter();
 
-	const privateData = useQuery(trpc.privateData.queryOptions());
+  const {
+    data: books,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteQuery(
+    trpc.getBooks.infiniteQueryOptions(
+      {
+        limit: 20,
+      },
+      {
+        // Any Tanstack React Query options
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      },
+    ),
+  );
+  const randomBookMutation = useMutation(trpc.getRandomBook.mutationOptions());
 
-	useEffect(() => {
-		if (!session && !isPending) {
-			router.push("/login");
-		}
-	}, [session, isPending]);
+  const { data: session, isPending } = authClient.useSession();
+  const displayBooks = useMemo(() => {
+    return (books?.pages ?? [])?.flatMap((page) => {
+      return (page.items ?? [])?.map((book) => {
+        return {
+          ...book,
+          hostname: new URL(book.url).hostname,
+        };
+      });
+    });
+  }, [books]);
 
-	if (isPending) {
-		return <div>Loading...</div>;
-	}
-	return (
-		<div className="grid grid-cols-4">
-			{books.map((book, index) => {
-				return (
-					<Card key={`${book.url}_${index}`}>
-						<CardHeader>
-							<CardTitle>{book.name}</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<Button onClick={() => window.open(book.url, "__blank")}>
-								Go
-							</Button>
-						</CardContent>
-					</Card>
-				);
-			})}
-		</div>
-	);
+  useEffect(() => {
+    if (!session && !isPending) {
+      router.push("/login");
+    }
+  }, [session, isPending, router]);
+
+  const handleRandomBook = async () => {
+    const randomBook = await randomBookMutation.mutateAsync();
+    if (!randomBook) {
+      toast.error("Failed to get random book");
+      return;
+    }
+    window.open(randomBook?.url, "__blank");
+  };
+
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
+  return (
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-2 py-4 sm:gap-2">
+      <section className="flex justify-end gap-2">
+        <Button
+          className="hover:cursor-pointer"
+          variant="outline"
+          onClick={() => handleRandomBook()}
+        >
+          Random
+        </Button>
+        <Button
+          className="hover:cursor-pointer"
+          onClick={() => router.push("/library/import")}
+        >
+          Import books
+        </Button>
+      </section>
+      <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {displayBooks.map((book, index) => {
+          return (
+            <Card key={`${book.url}_${index}`} className="h-fit">
+              <CardHeader>
+                <CardTitle className="line-clamp-2">{book.name}</CardTitle>
+                <Badge
+                  variant="secondary"
+                  className="bg-blue-500 text-white dark:bg-blue-600"
+                >
+                  <BadgeCheckIcon />
+                  {book.hostname}
+                </Badge>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  className="w-full hover:cursor-pointer"
+                  onClick={() => window.open(book.url, "__blank")}
+                >
+                  Read
+                </Button>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </section>
+      <section>
+        <Button
+          className="w-full hover:cursor-pointer"
+          variant="ghost"
+          onClick={() => fetchNextPage()}
+          disabled={!hasNextPage}
+        >
+          Load more
+        </Button>
+      </section>
+    </div>
+  );
 }
 
 export default library;
