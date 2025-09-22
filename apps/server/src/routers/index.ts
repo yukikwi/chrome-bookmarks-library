@@ -1,7 +1,7 @@
 import { asc, gt, sql } from "drizzle-orm";
 import z from "zod";
-import { db } from "@/db";
-import { book } from "@/db/schema";
+import { db } from "../db";
+import { book } from "../db/schema";
 import { protectedProcedure, publicProcedure, router } from "../lib/trpc";
 
 export const appRouter = router({
