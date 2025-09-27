@@ -1,0 +1,14 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "steps": {
+    "install": {
+      "commands": ["bun install"]
+    },
+    "build": {
+      "commands": ["bun run build"]
+    }
+  },
+  "deploy": {
+    "startCommand": "bun dist/index.js"
+  }
+}
