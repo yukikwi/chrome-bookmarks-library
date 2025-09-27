@@ -6,7 +6,7 @@
         {
           "cmd": "cd ../server && bun install",
           "customName": "Install dependencies (server)"
-        }
+        },
         {
           "cmd": "cd ../web && bun install",
           "customName": "Install dependencies (frontend)"
