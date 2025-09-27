@@ -4,6 +4,7 @@
     "install": {
       "include": ["."],
       "commands": [
+        "...",
         {
           "cmd": "sh -c 'ls && pwd'",
           "customName": "Debug"
