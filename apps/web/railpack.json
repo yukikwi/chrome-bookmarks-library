@@ -2,7 +2,16 @@
   "$schema": "https://schema.railpack.com",
   "steps": {
     "install": {
-      "commands": ["bun install"]
+      "commands": [
+        {
+          "cmd": "cd ../server && bun install",
+          "customName": "Install dependencies (server)"
+        }
+        {
+          "cmd": "cd ../web && bun install",
+          "customName": "Install dependencies (frontend)"
+        }
+      ]
     },
     "build": {
       "commands": ["bun run build"]
