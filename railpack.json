@@ -4,6 +4,10 @@
     "install": {
       "commands": [
         {
+          "cmd": "sh -c 'ls && pwd'",
+          "customName": "Debug"
+        },
+        {
           "cmd": "sh -c 'cd apps/server && bun install'",
           "customName": "Install dependencies (server)"
         },
