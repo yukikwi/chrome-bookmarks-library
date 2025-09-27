@@ -1,28 +1,5 @@
 {
   "$schema": "https://schema.railpack.com",
-  "steps": {
-    "install": {
-      "include": ["."],
-      "commands": [
-        "...",
-        {
-          "cmd": "sh -c 'ls && pwd'",
-          "customName": "Debug"
-        },
-        {
-          "cmd": "sh -c 'cd apps/server && bun install'",
-          "customName": "Install dependencies (server)"
-        },
-        {
-          "cmd": "sh -c 'cd apps/web && bun install'",
-          "customName": "Install dependencies (frontend)"
-        }
-      ]
-    },
-    "build": {
-      "commands": ["sh -c 'cd apps/web && bun run build'"]
-    }
-  },
   "deploy": {
     "startCommand": "sh -c 'cd apps/web && bun run start'"
   }
