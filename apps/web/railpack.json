@@ -4,11 +4,11 @@
     "install": {
       "commands": [
         {
-          "cmd": "cd ../server && bun install",
+          "cmd": "sh -c 'cd ../server && bun install'",
           "customName": "Install dependencies (server)"
         },
         {
-          "cmd": "cd ../web && bun install",
+          "cmd": "sh -c 'cd ../web && bun install'",
           "customName": "Install dependencies (frontend)"
         }
       ]
