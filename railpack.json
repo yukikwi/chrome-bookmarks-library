@@ -4,20 +4,20 @@
     "install": {
       "commands": [
         {
-          "cmd": "sh -c 'cd ../server && bun install'",
+          "cmd": "sh -c 'cd apps/server && bun install'",
           "customName": "Install dependencies (server)"
         },
         {
-          "cmd": "sh -c 'cd ../web && bun install'",
+          "cmd": "sh -c 'cd apps/web && bun install'",
           "customName": "Install dependencies (frontend)"
         }
       ]
     },
     "build": {
-      "commands": ["bun run build"]
+      "commands": ["sh -c 'cd apps/web && bun run build'"]
     }
   },
   "deploy": {
-    "startCommand": "bun dist/index.js"
+    "startCommand": "sh -c 'cd apps/web && bun run start'"
   }
 }
