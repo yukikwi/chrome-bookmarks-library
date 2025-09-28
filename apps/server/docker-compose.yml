@@ -2,7 +2,7 @@ name: my-better-t-app
 
 services:
   postgres:
-    image: postgres:17
+    image: postgres:18
     container_name: my-better-t-app-postgres
     environment:
       POSTGRES_DB: my-better-t-app
@@ -11,7 +11,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - my-better-t-app_postgres_data:/var/lib/postgresql/data
+      - my-better-t-app_postgres_data:/var/lib/postgresql/18/docker
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s

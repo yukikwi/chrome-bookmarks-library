@@ -67,6 +67,7 @@ function library() {
           className="hover:cursor-pointer"
           variant="outline"
           onClick={() => handleRandomBook()}
+          loading={randomBookMutation.isPending}
         >
           Random
         </Button>
