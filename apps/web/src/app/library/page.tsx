@@ -74,7 +74,7 @@ function library() {
       toast.error("Failed to get random book");
       return;
     }
-    window.open(randomBook?.url, "__blank");
+    window.open(randomBook?.url, "_blank");
   };
 
   if (isPending) {
