@@ -1,4 +1,4 @@
-import { asc, gt, sql } from "drizzle-orm";
+import { and, asc, gt, ilike, or, sql } from "drizzle-orm";
 import z from "zod";
 import { db } from "../db";
 import { book } from "../db/schema";
@@ -17,17 +17,27 @@ export const appRouter = router({
   getBooks: protectedProcedure
     .input(
       z.object({
+        keyword: z.string().optional(),
         limit: z.number().min(1).max(100).nullish(),
         cursor: z.number().nullish(), // <-- "cursor" needs to exist, but can be any type
-      }),
+      })
     )
     .query(async ({ ctx, input }) => {
       const limit = input.limit ?? 50;
+      const keyword = input.keyword ?? "";
       const { cursor } = input;
       const items = await db
         .select()
         .from(book)
-        .where(cursor ? gt(book.id, cursor) : undefined) // if cursor is provided, get rows after it
+        .where(
+          and(
+            cursor ? gt(book.id, cursor) : undefined,
+            or(
+              ilike(book.name, `%${keyword}%`),
+              ilike(book.hostname, `%${keyword}%`)
+            )
+          )
+        ) // if cursor is provided, get rows after it
         .limit(limit + 1) // the number of rows to return
         .orderBy(asc(book.id)); // ordering
       let nextCursor: typeof cursor | undefined;

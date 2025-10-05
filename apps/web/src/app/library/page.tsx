@@ -2,15 +2,17 @@
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import { BadgeCheckIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/utils/trpc";
 
 function library() {
+  const [keyword, setKeyword] = useState("");
   const router = useRouter();
 
   const {
@@ -20,6 +22,7 @@ function library() {
   } = useInfiniteQuery(
     trpc.getBooks.infiniteQueryOptions(
       {
+        keyword,
         limit: 20,
       },
       {
@@ -63,6 +66,14 @@ function library() {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-2 py-4 sm:gap-2">
       <section className="flex justify-end gap-2">
+        <Input
+          placeholder="Search"
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              setKeyword((event.target as HTMLInputElement).value);
+            }
+          }}
+        />
         <Button
           className="hover:cursor-pointer"
           variant="outline"
