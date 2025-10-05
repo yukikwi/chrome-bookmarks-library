@@ -1,5 +1,5 @@
 "use client";
-import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { BadgeCheckIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -8,11 +8,19 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/utils/trpc";
 
 function library() {
   const [keyword, setKeyword] = useState("");
+  const [hostnameFilter, setHostnameFilter] = useState<string | undefined>(undefined);
   const router = useRouter();
 
   const {
@@ -23,6 +31,7 @@ function library() {
     trpc.getBooks.infiniteQueryOptions(
       {
         keyword,
+        hostnameFilter,
         limit: 20,
       },
       {
@@ -30,6 +39,11 @@ function library() {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       },
     ),
+  );
+  const {
+    data: hostnames,
+  } = useQuery(
+    trpc.getHostnames.queryOptions(),
   );
   const randomBookMutation = useMutation(trpc.getRandomBook.mutationOptions());
 
@@ -52,7 +66,10 @@ function library() {
   }, [session, isPending, router]);
 
   const handleRandomBook = async () => {
-    const randomBook = await randomBookMutation.mutateAsync();
+    const randomBook = await randomBookMutation.mutateAsync({
+      keyword,
+      hostnameFilter,
+    });
     if (!randomBook) {
       toast.error("Failed to get random book");
       return;
@@ -74,6 +91,23 @@ function library() {
             }
           }}
         />
+        <Select onValueChange={(value) => setHostnameFilter(value)}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Website" />
+          </SelectTrigger>
+          <SelectContent>
+            {
+              hostnames?.map((hostname) => (
+                <SelectItem
+                  key={hostname}
+                  value={hostname}
+                  >
+                    {hostname}
+                  </SelectItem>
+              ))
+            }
+          </SelectContent>
+        </Select>
         <Button
           className="hover:cursor-pointer"
           variant="outline"

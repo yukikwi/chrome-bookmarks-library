@@ -1,4 +1,4 @@
-import { and, asc, gt, ilike, or, sql } from "drizzle-orm";
+import { and, asc, eq, gt, ilike, or, sql } from "drizzle-orm";
 import z from "zod";
 import { db } from "../db";
 import { book } from "../db/schema";
@@ -14,10 +14,18 @@ export const appRouter = router({
       user: ctx.session.user,
     };
   }),
+  getHostnames: protectedProcedure.query(async () => {
+    const hostnames = await db
+      .selectDistinct({ hostname: book.hostname })
+      .from(book)
+      .orderBy(asc(book.hostname));
+    return hostnames.map((h) => h.hostname);
+  }),
   getBooks: protectedProcedure
     .input(
       z.object({
         keyword: z.string().optional(),
+        hostnameFilter: z.string().optional(),
         limit: z.number().min(1).max(100).nullish(),
         cursor: z.number().nullish(), // <-- "cursor" needs to exist, but can be any type
       })
@@ -35,7 +43,10 @@ export const appRouter = router({
             or(
               ilike(book.name, `%${keyword}%`),
               ilike(book.hostname, `%${keyword}%`)
-            )
+            ),
+            input.hostnameFilter
+              ? eq(book.hostname, input.hostnameFilter)
+              : undefined
           )
         ) // if cursor is provided, get rows after it
         .limit(limit + 1) // the number of rows to return
@@ -50,11 +61,27 @@ export const appRouter = router({
         nextCursor,
       };
     }),
-  getRandomBook: protectedProcedure.mutation(async ({ ctx }) => {
-    const randomBook = await db.query.book.findFirst({
-      orderBy: [sql`random()`],
-    });
-    return randomBook;
-  }),
+  getRandomBook: protectedProcedure
+    .input(
+      z.object({
+        keyword: z.string().optional(),
+        hostnameFilter: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const randomBook = await db.query.book.findFirst({
+        orderBy: [sql`random()`],
+        where: and(
+          or(
+            ilike(book.name, `%${input.keyword}%`),
+            ilike(book.hostname, `%${input.keyword}%`)
+          ),
+          input.hostnameFilter
+            ? eq(book.hostname, input.hostnameFilter)
+            : undefined
+        ),
+      });
+      return randomBook;
+    }),
 });
 export type AppRouter = typeof appRouter;
