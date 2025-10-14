@@ -24,8 +24,9 @@
 	},
 	"dependencies": {},
 	"devDependencies": {
-		"turbo": "^2.5.4",
-		"@biomejs/biome": "^2.2.0"
+		"@biomejs/biome": "^2.2.6",
+		"@socketsecurity/bun-security-scanner": "^1.1.0",
+		"turbo": "^2.5.8"
 	},
 	"packageManager": "bun@1.2.21"
 }
