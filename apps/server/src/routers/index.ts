@@ -1,7 +1,7 @@
 import { and, asc, eq, gt, ilike, or, sql } from "drizzle-orm";
 import z from "zod";
 import { db } from "../db";
-import { book } from "../db/schema";
+import { book, openHistory } from "../db/schema";
 import { protectedProcedure, publicProcedure, router } from "../lib/trpc";
 
 export const appRouter = router({
@@ -68,7 +68,7 @@ export const appRouter = router({
         hostnameFilter: z.string().optional(),
       })
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       const randomBook = await db.query.book.findFirst({
         orderBy: [sql`random()`],
         where: and(
@@ -81,6 +81,14 @@ export const appRouter = router({
             : undefined
         ),
       });
+
+      // add randomBook to recent searches table with timestamp
+      if (randomBook) {
+        await db.insert(openHistory).values({
+          bookId: randomBook.id,
+          createdAt: new Date(),
+        });
+      }
       return randomBook;
     }),
 });

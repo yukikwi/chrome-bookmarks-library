@@ -1,0 +1,2 @@
+ALTER TABLE "open_history" ALTER COLUMN "book_id" SET NOT NULL;--> statement-breakpoint
+ALTER TABLE "open_history" ADD CONSTRAINT "open_history_book_id_book_id_fk" FOREIGN KEY ("book_id") REFERENCES "public"."book"("id") ON DELETE cascade ON UPDATE no action;

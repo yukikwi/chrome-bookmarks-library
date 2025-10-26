@@ -29,6 +29,20 @@
       "when": 1758377270358,
       "tag": "0004_quiet_spyke",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1761453363968,
+      "tag": "0007_smiling_sentinels",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1761453676045,
+      "tag": "0008_sudden_saracen",
+      "breakpoints": true
     }
   ]
 }
