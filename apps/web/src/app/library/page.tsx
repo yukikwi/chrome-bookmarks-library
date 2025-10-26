@@ -20,7 +20,9 @@ import { trpc } from "@/utils/trpc";
 
 function library() {
   const [keyword, setKeyword] = useState("");
-  const [hostnameFilter, setHostnameFilter] = useState<string | undefined>(undefined);
+  const [hostnameFilter, setHostnameFilter] = useState<string | undefined>(
+    undefined,
+  );
   const router = useRouter();
 
   const {
@@ -40,11 +42,7 @@ function library() {
       },
     ),
   );
-  const {
-    data: hostnames,
-  } = useQuery(
-    trpc.getHostnames.queryOptions(),
-  );
+  const { data: hostnames } = useQuery(trpc.getHostnames.queryOptions());
   const randomBookMutation = useMutation(trpc.getRandomBook.mutationOptions());
 
   const displayBooks = useMemo(() => {
@@ -82,7 +80,7 @@ function library() {
   }
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-2 py-4 sm:gap-2">
-      <section className="flex justify-end gap-2">
+      <section className="flex flex-col justify-end gap-2 md:flex-row">
         <Input
           placeholder="Search"
           onKeyDown={(event) => {
@@ -92,20 +90,15 @@ function library() {
           }}
         />
         <Select onValueChange={(value) => setHostnameFilter(value)}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full md:w-[180px]">
             <SelectValue placeholder="Website" />
           </SelectTrigger>
           <SelectContent>
-            {
-              hostnames?.map((hostname) => (
-                <SelectItem
-                  key={hostname}
-                  value={hostname}
-                  >
-                    {hostname}
-                  </SelectItem>
-              ))
-            }
+            {hostnames?.map((hostname) => (
+              <SelectItem key={hostname} value={hostname}>
+                {hostname}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Button
