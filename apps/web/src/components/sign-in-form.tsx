@@ -36,7 +36,7 @@ export default function SignInForm() {
       <h1 className="mb-6 text-center font-bold text-3xl">Welcome Back</h1>
 
       <Button className="w-full" onClick={login}>
-        Sign In via Github
+        Sign In via Yuki2th
       </Button>
     </div>
   );
