@@ -1,4 +1,4 @@
-import { and, asc, eq, gt, ilike, or, sql } from "drizzle-orm";
+import { and, asc, count, eq, gt, ilike, or, sql } from "drizzle-orm";
 import z from "zod";
 import { db } from "../db";
 import { book, openHistory } from "../db/schema";
@@ -69,27 +69,51 @@ export const appRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const randomBook = await db.query.book.findFirst({
-        orderBy: [sql`random()`],
-        where: and(
-          or(
-            ilike(book.name, `%${input.keyword}%`),
-            ilike(book.hostname, `%${input.keyword}%`)
+      // const randomBook = await db.query.book.findFirst({
+      //   orderBy: [sql`random()`],
+      //   where: and(
+      //     or(
+      //       ilike(book.name, `%${input.keyword}%`),
+      //       ilike(book.hostname, `%${input.keyword}%`)
+      //     ),
+      //     input.hostnameFilter
+      //       ? eq(book.hostname, input.hostnameFilter)
+      //       : undefined
+      //   ),
+      // });
+      const totalOpens = await db.select({ count: count() }).from(openHistory);
+      const randomBooks = await db
+        .select({
+          id: book.id,
+          name: book.name,
+          url: book.url,
+          hostname: book.hostname,
+          createdAt: book.createdAt,
+          updatedAt: book.updatedAt,
+          numberOfOpens: sql<number>`COUNT(${openHistory.id})`.as(
+            "numberOfOpens"
           ),
-          input.hostnameFilter
-            ? eq(book.hostname, input.hostnameFilter)
-            : undefined
-        ),
-      });
+        })
+        .from(book)
+        .leftJoin(openHistory, eq(book.id, openHistory.bookId))
+        .groupBy(book.id)
+        .orderBy(
+          sql`
+            random() + (COUNT("open_history"."id") / ${
+              totalOpens[0].count + 1
+            }) ASC
+          `
+        )
+        .limit(1);
 
       // add randomBook to recent searches table with timestamp
-      if (randomBook) {
+      if (randomBooks.length > 0) {
         await db.insert(openHistory).values({
-          bookId: randomBook.id,
+          bookId: randomBooks[0].id,
           createdAt: new Date(),
         });
       }
-      return randomBook;
+      return randomBooks[0];
     }),
 });
 export type AppRouter = typeof appRouter;
