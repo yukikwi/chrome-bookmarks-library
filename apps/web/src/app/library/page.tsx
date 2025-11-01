@@ -102,7 +102,7 @@ function library() {
           </SelectContent>
         </Select>
         <Button
-          className="hover:cursor-pointer"
+          className="hover:cursor-pointer h-20 md:h-auto"
           variant="outline"
           onClick={() => handleRandomBook()}
           loading={randomBookMutation.isPending}
