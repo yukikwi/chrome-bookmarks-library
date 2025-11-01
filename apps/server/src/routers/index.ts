@@ -96,11 +96,21 @@ export const appRouter = router({
         })
         .from(book)
         .leftJoin(openHistory, eq(book.id, openHistory.bookId))
+        .where(
+          and(
+            or(
+              ilike(book.name, `%${input.keyword}%`),
+              ilike(book.hostname, `%${input.keyword}%`)
+            ),
+            input.hostnameFilter
+              ? eq(book.hostname, input.hostnameFilter)
+              : undefined
+          )
+        )
         .groupBy(book.id)
         .orderBy(
           sql`
-            random() + (COUNT("open_history"."id") / ${
-              totalOpens[0].count + 1
+            random() + (COUNT("open_history"."id") / ${totalOpens[0].count + 1
             }) ASC
           `
         )
