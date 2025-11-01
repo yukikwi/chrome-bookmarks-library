@@ -69,18 +69,6 @@ export const appRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      // const randomBook = await db.query.book.findFirst({
-      //   orderBy: [sql`random()`],
-      //   where: and(
-      //     or(
-      //       ilike(book.name, `%${input.keyword}%`),
-      //       ilike(book.hostname, `%${input.keyword}%`)
-      //     ),
-      //     input.hostnameFilter
-      //       ? eq(book.hostname, input.hostnameFilter)
-      //       : undefined
-      //   ),
-      // });
       const totalOpens = await db.select({ count: count() }).from(openHistory);
       const randomBooks = await db
         .select({
